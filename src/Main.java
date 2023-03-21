@@ -1,15 +1,22 @@
-/****************************************************************
- +--------------------------------------------------------------+
- | author derrick shibero wakhu                                 |
- +--------------------------------------------------------------+
- ****************************************************************/
+/*
+ * password for admin = admin
+ * the user is required to enter their id and password inorder to access the system
+ * this is the main class of the project.
+ * it contains the code for the GUI and also some codes for the workings of swing elements like the buttons
+ * the GUI utilizes the use of layouts like the gridbag, border and card layout
+ * card is used mostly with the panels and each other and the panels and the frame
+ * the GUI has one frame and several panels
+ * the border layout has been used in the menu panel
+ * the gridbag has been used extensively in the other borders
+ */
+
+import Member.Member;
+import Miscallenous.Miscallenous;
+import Miscallenous.Search;
+import NewEntries.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 public class Main {
     private static  final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -18,9 +25,10 @@ public class Main {
     private static final JPanel projectPanel = new JPanel();
     private static JTable table1;
     private static JScrollPane sp1;
+    private static boolean member_state = false;
     private static final JPanel menuPanel = new JPanel();
     private static final JPanel mainPanel = new JPanel();
-    private static final JPanel logginPanel = new JPanel();
+    private static final JPanel loginPanel = new JPanel();
     private static final JPanel MainWorkPanel = new JPanel();
     private static final CardLayout card = new CardLayout();
     private static final JPanel newMemberPanel = new JPanel();
@@ -50,6 +58,7 @@ public class Main {
     private static final JLabel newBookTitleLabel = new JLabel("enter the title");
     private static final JLabel newBookQuantityLabel = new JLabel("enter the quantity");
     private static final JLabel newBookYearLabel = new JLabel("enter the year");
+    private static final JLabel newBookSubjectLabel = new JLabel("enter the subject");
     private static final JTextField newBookIdEntry = new JTextField(10);
     private static final JTextField newBookAuthorEntry = new JTextField(10);
     private static final JTextField newBookEditionEntry = new JTextField(10);
@@ -82,6 +91,7 @@ public class Main {
     private static final JButton newBookButton = new JButton("submit");
     private static final JButton newBorrowsButton = new JButton("submit");
     private static final JTextField newBorrowsBookIdEntry = new JTextField(10);
+    private static final JTextField newBookSubjectEntry = new JTextField(10);
     private static final JTextField newBorrowsBorrowerIdEntry = new JTextField(10);
     private static final JSpinner newBorrowsDayEntry = new JSpinner(new SpinnerNumberModel(1, 1, 31, 1));
     private static final JComboBox newBorrowsMonthEntry = new JComboBox(months);
@@ -101,26 +111,41 @@ public class Main {
     private static final JPanel MemberBorrowReportPanel = new JPanel();
     private static final JLabel newReturnIdLabel = new JLabel("enter the borrow ID");
     private static final JTextField newReturnIdEntry = new JTextField(10);
+    private static final JTextField newMemberEmailEntry = new JTextField(10);
+    private static final JTextField newMemberPhoneNumberEntry = new JTextField(10);
+    private static final JTextField newMemberAddressEntry = new JTextField(10);
+    private static final JTextField newMemberCountyEntry = new JTextField(10);
     private static final JPanel BookReportPanel = new JPanel();
     private static final JButton MemberBorrowReportButton = new JButton("Member Report");
     private static final JButton BookReportButton = new JButton("Book Report");
     private static final JButton BorrowReportButton = new JButton("Borrow Report");
     private static final JButton ReserveReportButton = new JButton("Reserve Report");
+    private static final JButton SearchButton  = new JButton("Search");
 
     private static final JPanel BorrowReportPanel = new JPanel();
+    private static final JPanel SearchPanel = new JPanel();
     private static final JPanel ReserveReportPanel = new JPanel();
+    private static final JTextField searchEntry = new JTextField(10);
+    private static final JButton searchButton = new JButton("submit");
+    private static final String[] searchChoices = {"all", "title", "author", "subject"};
+    private static final JComboBox searchComboBox = new JComboBox(searchChoices);
 
-    private static Connection conn = null;
-    private static Statement stmt = null;
+    private static boolean isMember = true;
+
+    private static Member member = new Member();
+    private static Search mySearch = new Search();
     public Main(){
         mainPanel.setLayout(card);
         JPanel firstPage = new JPanel();
         JLabel Title = new JLabel("welcome to the library system");
         firstPage.add(Title);
 
+
+        // this is the code for the graphical user interface used when registering a new member i.e. the newMember panel
         newMemberPanel.setLayout(new GridBagLayout());
-        newMemberPanel.setBackground(Color.yellow);
-        libMemberButton.setBackground(Color.yellow);
+        newMemberPanel.setBackground(Color.blue);
+        libMemberButton.setBackground(Color.green);
+        libMemberButton.setBorderPainted(false);
         gridbag1.gridx = 0; gridbag1.gridy = 0;
         newMemberPanel.add(new JLabel("new Member"), gridbag1);
         gridbag1.gridx = 0; gridbag1.gridy = 1;
@@ -133,6 +158,14 @@ public class Main {
         newMemberPanel.add(newMemberGenderLabel, gridbag1);
         gridbag1.gridx = 0; gridbag1.gridy = 5;
         newMemberPanel.add(newMemberPasswordLabel, gridbag1);
+        gridbag1.gridx = 0; gridbag1.gridy = 6;
+        newMemberPanel.add(new JLabel("enter the email address"), gridbag1);
+        gridbag1.gridx = 0; gridbag1.gridy = 7;
+        newMemberPanel.add(new JLabel("enter the phone number"), gridbag1);
+        gridbag1.gridx = 0; gridbag1.gridy = 8;
+        newMemberPanel.add(new JLabel("enter the physical address"), gridbag1);
+        gridbag1.gridx = 0; gridbag1.gridy = 9;
+        newMemberPanel.add(new JLabel("enter the county of origin"), gridbag1);
         gridbag1.gridx = 1; gridbag1.gridy = 1;
         newMemberPanel.add(newMemberIdEntry, gridbag1);
         gridbag1.gridx = 1; gridbag1.gridy = 2;
@@ -145,12 +178,23 @@ public class Main {
         newMemberPanel.add(newMemberFemaleEntry, gridbag1);
         gridbag1.gridx = 1; gridbag1.gridy = 5;
         newMemberPanel.add(newMemberPasswordEntry, gridbag1);
-        gridbag1.gridx = 0; gridbag1.gridy = 6;
+        gridbag1.gridx = 1; gridbag1.gridy = 6;
+        newMemberPanel.add(newMemberEmailEntry, gridbag1);
+        gridbag1.gridx = 1; gridbag1.gridy = 7;
+        newMemberPanel.add(newMemberPhoneNumberEntry, gridbag1);
+        gridbag1.gridx = 1; gridbag1.gridy = 8;
+        newMemberPanel.add(newMemberAddressEntry, gridbag1);
+        gridbag1.gridx = 1; gridbag1.gridy = 9;
+        newMemberPanel.add(newMemberCountyEntry, gridbag1);
+        gridbag1.gridx = 0; gridbag1.gridy = 10;
         newMemberPanel.add(newMemberButton, gridbag1);
 
+
+        // admin interface for adding a new book i.e. the newBook panel
         newBookPanel.setLayout(new GridBagLayout());
-        newBookPanel.setBackground(Color.CYAN);
-        libBooksButton.setBackground(Color.CYAN);
+        newBookPanel.setBackground(Color.blue);
+        libBooksButton.setBackground(Color.green);
+        libBooksButton.setBorderPainted(false);
         gridbag2.gridx = 0; gridbag2.gridy = 0;
         newBookPanel.add(new JLabel("new Book"), gridbag2);
         gridbag2.gridx = 0; gridbag2.gridy = 1;
@@ -164,8 +208,10 @@ public class Main {
         gridbag2.gridx = 0; gridbag2.gridy = 5;
         newBookPanel.add(newBookTitleLabel, gridbag2);
         gridbag2.gridx = 0; gridbag2.gridy = 6;
-        newBookPanel.add(newBookQuantityLabel, gridbag2);
+        newBookPanel.add(newBookSubjectLabel, gridbag2);
         gridbag2.gridx = 0; gridbag2.gridy = 7;
+        newBookPanel.add(newBookQuantityLabel, gridbag2);
+        gridbag2.gridx = 0; gridbag2.gridy = 8;
         newBookPanel.add(newBookYearLabel, gridbag2);
         gridbag2.gridx = 1; gridbag2.gridy = 1;
         newBookPanel.add(newBookIdEntry, gridbag2);
@@ -178,15 +224,20 @@ public class Main {
         gridbag2.gridx = 1; gridbag2.gridy = 5;
         newBookPanel.add(newBookTitleEntry, gridbag2);
         gridbag2.gridx = 1; gridbag2.gridy = 6;
-        newBookPanel.add(newBookQuantityEntry, gridbag2);
+        newBookPanel.add(newBookSubjectEntry, gridbag2);
         gridbag2.gridx = 1; gridbag2.gridy = 7;
+        newBookPanel.add(newBookQuantityEntry, gridbag2);
+        gridbag2.gridx = 1; gridbag2.gridy = 8;
         newBookPanel.add(newBookYearEntry, gridbag2);
-        gridbag2.gridx = 0; gridbag2.gridy = 8;
+        gridbag2.gridx = 0; gridbag2.gridy = 9;
         newBookPanel.add(newBookButton, gridbag2);
 
+
+        // user interface for borrowing a book i.e. the newBorrows panel
         newBorrowsPanel.setLayout(new GridBagLayout());
-        newBorrowsPanel.setBackground(Color.GREEN);
-        libBorrowButton.setBackground(Color.GREEN);
+        newBorrowsPanel.setBackground(Color.blue);
+        libBorrowButton.setBackground(Color.green);
+        libBorrowButton.setBorderPainted(false);
         gridbag3.gridx = 0; gridbag3.gridy = 0;
         newBorrowsPanel.add(new JLabel("Borrow book"), gridbag3);
         gridbag3.gridx = 0; gridbag3.gridy = 1;
@@ -212,9 +263,12 @@ public class Main {
         gridbag3.gridx = 0; gridbag3.gridy = 5;
         newBorrowsPanel.add(newBorrowsButton, gridbag3);
 
+
+        // user interface for reserving a book i.e. the newReserves panel
         newReservesPanel.setLayout(new GridBagLayout());
-        newReservesPanel.setBackground(Color.MAGENTA);
-        libReserveButton.setBackground(Color.MAGENTA);
+        newReservesPanel.setBackground(Color.blue);
+        libReserveButton.setBackground(Color.green);
+        libReserveButton.setBorderPainted(false);
         gridbag4.gridx = 0; gridbag4.gridy = 0;
         newReservesPanel.add(new JLabel("Reserve book"), gridbag4);
         gridbag4.gridx = 0; gridbag4.gridy = 1;
@@ -240,9 +294,12 @@ public class Main {
         gridbag4.gridx = 0; gridbag4.gridy = 5;
         newReservesPanel.add(newReserveButton, gridbag4);
 
+
+        // user interface for returning a book i.e. the newReturn panel
         newReturnPanel.setLayout(new GridBagLayout());
-        newReturnPanel.setBackground(Color.ORANGE);
-        libReturnButton.setBackground(Color.ORANGE);
+        newReturnPanel.setBackground(Color.blue);
+        libReturnButton.setBackground(Color.green);
+        libReturnButton.setBorderPainted(false);
         gridbag5.gridx = 0; gridbag5.gridy = 0;
         newReturnPanel.add(new JLabel("Return book"), gridbag5);
         gridbag5.gridx = 0; gridbag5.gridy = 1;
@@ -272,26 +329,36 @@ public class Main {
         gridbag5.gridx = 0; gridbag5.gridy = 6;
         newReturnPanel.add(newReturnButton, gridbag5);
 
-        String[][] members = new String[100000][4];
-        String[] columns1 = {"id", "first name", "last name", "gender"};
+        // this is the graphical user interface consisting of a table showing all the users in the library i.e. the
+        // newBorrowReport panel
+        String[][] members = new String[100000][9];
+        String[] columns1 = {"id", "first name", "last name", "gender", "password", "email", "phone number", "address", "county"};
         table1 = new JTable(members, columns1);
         sp1 = new JScrollPane(table1);
         MemberBorrowReportPanel.setLayout(new BorderLayout());
-        MemberBorrowReportPanel.add(new JLabel("Member Report"), BorderLayout.NORTH);
+        MemberBorrowReportPanel.add(new JLabel("Member.Member Report"), BorderLayout.NORTH);
         MemberBorrowReportPanel.add(sp1, BorderLayout.CENTER);
-        MemberBorrowReportButton.setBackground(Color.yellow);
-        MemberBorrowReportPanel.setBackground(Color.yellow);
+        MemberBorrowReportButton.setBackground(Color.green);
+        MemberBorrowReportButton.setBorderPainted(false);
+        MemberBorrowReportPanel.setBackground(Color.blue);
 
-        String[][] books = new String[100000][7];
-        String[] columns2 = {"Id", "Author", "Edition", "ISDN", "Title", "quantity", "year Published"};
+
+        // user interface showing all the data on the books and their attributes in the library in tabular format i.e.
+        // the bookReport panel
+        String[][] books = new String[100000][8];
+        String[] columns2 = {"Id", "Author", "Edition", "ISDN", "Title", "subject", "quantity", "year Published"};
         JTable table2 = new JTable(books, columns2);
         JScrollPane sp2 = new JScrollPane(table2);
         BookReportPanel.setLayout(new BorderLayout());
         BookReportPanel.add(new JLabel("Book Report"), BorderLayout.NORTH);
         BookReportPanel.add(sp2, BorderLayout.CENTER);
-        BookReportPanel.setBackground(Color.CYAN);
-        BookReportButton.setBackground(Color.CYAN);
+        BookReportPanel.setBackground(Color.blue);
+        BookReportButton.setBackground(Color.green);
+        BookReportButton.setBorderPainted(false);
 
+
+        // user interface showing all the data on the members and the books they borrowed in tabular format i.e. the
+        // borrowReport panel
         String[][] borrow = new String[100000][5];
         String[] columns3 = {"borrow id","borrower id", "first name", "book title", "returned"};
         JTable table3 = new JTable(borrow, columns3);
@@ -299,9 +366,13 @@ public class Main {
         BorrowReportPanel.setLayout(new BorderLayout());
         BorrowReportPanel.add(new JLabel("Borrow Report"), BorderLayout.NORTH);
         BorrowReportPanel.add(sp3, BorderLayout.CENTER);
-        BorrowReportButton.setBackground(Color.GREEN);
-        BorrowReportPanel.setBackground(Color.GREEN);
+        BorrowReportButton.setBackground(Color.green);
+        BorrowReportButton.setBorderPainted(false);
+        BorrowReportPanel.setBackground(Color.blue);
 
+
+        // user interface showing all the data on the members and the books they reserved in tabular format i.e. the
+        // reserveReport panel
         String[][] reserves = new String[100000][5];
         String[] columns5 = {"reserve id","reserver id", "first name", "book title"};
         JTable table5 = new JTable(reserves, columns5);
@@ -309,11 +380,39 @@ public class Main {
         ReserveReportPanel.setLayout(new BorderLayout());
         ReserveReportPanel.add(new JLabel("Reserve Report"), BorderLayout.NORTH);
         ReserveReportPanel.add(sp5, BorderLayout.CENTER);
-        ReserveReportPanel.setBackground(Color.MAGENTA);
-        ReserveReportButton.setBackground(Color.MAGENTA);
+        ReserveReportPanel.setBackground(Color.blue);
+        ReserveReportButton.setBackground(Color.green);
+        ReserveReportButton.setBorderPainted(false);
 
-        JButton loginpageButton = new JButton("loggin");
+
+        // these are the menus in the system being shown in the menu panel
+        JButton loginPageButton = new JButton("login");
+        JButton homePageButton = new JButton("Home");
+        SearchPanel.setBackground(Color.blue);
+        SearchButton.setBackground(Color.green);
+        SearchButton.setBorderPainted(false);
+        SearchPanel.setLayout(new BorderLayout());
+
+        JPanel searchPanel1 = new JPanel();
+        searchPanel1.setLayout(new FlowLayout());
+        searchPanel1.add(new JLabel("enter the word to be searched"));
+        searchPanel1.setBackground(Color.green);
+        searchPanel1.add(searchEntry);
+        searchPanel1.add(searchComboBox);
+        searchPanel1.add(searchButton);
+
+        String[][] searchResults = new String[10000][4];
+        String[] searchColumns = {"id", "title", "author", "subject"};
+        JTable searchTable = new JTable(searchResults, searchColumns);
+        JScrollPane searchPane = new JScrollPane(searchTable);
+
+        SearchPanel.add(searchPanel1, BorderLayout.NORTH);
+        SearchPanel.add(searchPane, BorderLayout.CENTER);
+
+        homePageButton.setBorderPainted(false);
+        homePageButton.setBackground(Color.green);
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+        menuPanel.add(homePageButton);
         menuPanel.add(libMemberButton);
         menuPanel.add(libBooksButton);
         menuPanel.add(libBorrowButton);
@@ -323,9 +422,12 @@ public class Main {
         menuPanel.add(BookReportButton);
         menuPanel.add(BorrowReportButton);
         menuPanel.add(ReserveReportButton);
-        menuPanel.add(loginpageButton);
-        menuPanel.setBackground(Color.BLUE);
+        menuPanel.add(SearchButton);
+        menuPanel.add(loginPageButton);
+        menuPanel.setBackground(Color.green);
 
+
+        // these are the panels of the different displays used by the system
         mainPanel.add(firstPage, "0");
         mainPanel.add(newMemberPanel, "1");
         mainPanel.add(newBookPanel, "2");
@@ -336,142 +438,174 @@ public class Main {
         mainPanel.add(BookReportPanel, "7");
         mainPanel.add(BorrowReportPanel, "8");
         mainPanel.add(ReserveReportPanel, "10");
+        mainPanel.add(SearchPanel, "11");
 
-        libMemberButton.addActionListener(e -> card.show(mainPanel, "1"));
+
+        // these are the buttons used to control the panels displayed
+
+        // takes the user to the home page
+        homePageButton.addActionListener(e -> card.show(mainPanel, "0"));
+
+        // takes the user to the search page
+        SearchButton.addActionListener(e -> card.show(mainPanel, "11"));
+
+        // takes to the new members registration panel
+        libMemberButton.addActionListener(e -> {
+            member_state = false;
+            newMemberPanel.setBackground(Color.blue);
+            card.show(mainPanel, "1");
+        });
+
+        searchButton.addActionListener(e -> {
+            String selectedChoice = searchChoices[searchComboBox.getSelectedIndex()];
+            String choiceToSearch = searchEntry.getText();
+            Miscallenous.getEmptyArray(searchResults, 3);
+            switch (selectedChoice){
+                case "all":
+                    mySearch.getAllBooks(searchResults);
+                    break;
+                case "title":
+                    mySearch.getSpecialSearches(searchResults, "bookTitle", choiceToSearch);
+                    break;
+                case "author":
+                    mySearch.getSpecialSearches(searchResults, "bookAuthor", choiceToSearch);
+                    break;
+                case "subject":
+                    mySearch.getSpecialSearches(searchResults, "subject", choiceToSearch);
+                    break;
+            }
+            SearchPanel.add(searchPane, BorderLayout.CENTER);
+        });
+
+        // takes to the new book addition panel
         libBooksButton.addActionListener(e -> card.show(mainPanel, "2"));
-        libBorrowButton.addActionListener(e -> card.show(mainPanel, "4"));
-        libReserveButton.addActionListener(e -> card.show(mainPanel, "3"));
-        libReturnButton.addActionListener(e -> card.show(mainPanel, "5"));
+
+        // takes to the reserve panel
+        libBorrowButton.addActionListener(e -> {
+            card.show(mainPanel, "4");
+            if(isMember) {
+                newBorrowsBorrowerIdEntry.setVisible(false);
+                newBorrowsBorrowerIdLabel.setVisible(false);
+            }
+            else {
+                newBorrowsBorrowerIdEntry.setVisible(true);
+                newBorrowsBorrowerIdLabel.setVisible(true);
+            }
+        });
+
+        // takes to the borrow panel
+        libReserveButton.addActionListener(e -> {
+            card.show(mainPanel, "3");
+            if(isMember) {
+                newReserveBorrowerIdEntry.setVisible(false);
+                newReservesReserveLabel.setVisible(false);
+            }
+            else {
+                newReserveBorrowerIdEntry.setVisible(true);
+                newReservesReserveLabel.setVisible(true);
+            }
+        });
+
+        // takes to the return panel
+        libReturnButton.addActionListener(e -> {
+            card.show(mainPanel, "5");
+            if(isMember) {
+                newReturnBorrowerIdEntry.setVisible(false);
+                newReturnReserveLabel.setVisible(false);
+            }
+            else {
+                newReturnBorrowerIdEntry.setVisible(true);
+                newReturnReserveLabel.setVisible(true);
+            }
+        });
+
+        // takes to the book report panel
         BookReportButton.addActionListener(e -> {
             card.show(mainPanel, "7");
-            try{
-                Class.forName("org.sqlite.JDBC");
-                conn = DriverManager.getConnection("jdbc:sqlite:lib.db");
-                conn.setAutoCommit(false);
-                System.out.println("Opened database successfully\ttable member registration");
-
-                stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM Books");
-                int i = 0;
-                while(rs.next()){
-                    books[i][0] = ""+rs.getInt("bookId");
-                    books[i][1] = rs.getString("bookAuthor");
-                    books[i][2] = ""+rs.getInt("bookEdition");
-                    books[i][3] = ""+rs.getInt("bookIsdn");
-                    books[i][4] = rs.getString("bookTitle");
-                    books[i][5] = ""+rs.getInt("quantity");
-                    books[i][6] = ""+rs.getInt("yearPublished");
-                    i = i + 1;
-                }
-            }catch(Exception ex){JOptionPane.showMessageDialog(frame, ex.getMessage());}
+            mySearch.getBookReports(books);
         });
+
+        // takes to the member report panel
         MemberBorrowReportButton.addActionListener(e ->{
             card.show(mainPanel,"6");
-            try{
-                Class.forName("org.sqlite.JDBC");
-                conn = DriverManager.getConnection("jdbc:sqlite:lib.db");
-                conn.setAutoCommit(false);
-                System.out.println("Opened database successfully\ttable member registration");
-
-                stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM LibMember");
-                int i = 0;
-                while(rs.next()){
-                    members[i][0] = rs.getString("idNumber");
-                    members[i][1] = rs.getString("FirstName");
-                    members[i][2] = rs.getString("LastName");
-                    members[i][3] = rs.getString("Gender");
-                    i = i + 1;
-                }
-            }catch(Exception ex){JOptionPane.showMessageDialog(frame, ex.getMessage());}
+            mySearch.getMemberReports(members);
         });
+
+        // takes to the borrow report panel
         BorrowReportButton.addActionListener(e -> {
             card.show(mainPanel, "8");
-            try{
-                Class.forName("org.sqlite.JDBC");
-                conn = DriverManager.getConnection("jdbc:sqlite:lib.db");
-                conn.setAutoCommit(false);
-                System.out.println("Opened database successfully\ttable member registration");
-
-                stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM Borrows");
-                int i = 0;
-                while(rs.next()){
-                    String borrowId = ""+rs.getInt("BorrowId");
-                    String borrowerId = rs.getString("BorrowerId");
-                    String bookId = rs.getString("BookId");
-                    int returned = rs.getInt("Returned");
-                    String fname =  NewMember.getFName(borrowerId);
-                    String title = NewBook.getTitle(bookId);
-                    borrow[i][0] = borrowId;
-                    borrow[i][1] = borrowerId;
-                    borrow[i][2] = fname;
-                    borrow[i][3] = title;
-                    if(returned == 0) borrow[i][4] = "no";
-                    else if(returned == 1) borrow[i][4] = "yes";
-                    i = i + 1;
-                }
-            }catch(Exception ex){JOptionPane.showMessageDialog(frame, ex.getMessage());}
+            mySearch.getBorrowReports(borrow);
         });
+
+        // takes to the reserve report panel
         ReserveReportButton.addActionListener(e -> {
             card.show(mainPanel, "10");
-            try{
-                Class.forName("org.sqlite.JDBC");
-                conn = DriverManager.getConnection("jdbc:sqlite:lib.db");
-                conn.setAutoCommit(false);
-                System.out.println("Opened database successfully\ttable member registration");
-
-                stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM Reserves");
-                int i = 0;
-                while(rs.next()) {
-                    String reserveId = "" + rs.getInt("ReservationId");
-                    String reserverId = rs.getString("ReseverId");
-                    String bookId = rs.getString("BookId");
-                    String fname = NewMember.getFName(reserverId);
-                    String title = NewBook.getTitle(bookId);
-                    reserves[i][0] = reserveId;
-                    reserves[i][1] = reserverId;
-                    reserves[i][2] = fname;
-                    reserves[i][3] = title;
-                    i = i + 1;
-                }
-            }catch(Exception ex){JOptionPane.showMessageDialog(frame, ex.getMessage());}
+            mySearch.getReservesReport(reserves);
         });
+
+        // takes to the new member panel
         newMemberButton.addActionListener(e -> {
             try {
                 String Gender = null;
                 String fname = newMemberFNameEntry.getText();
                 String lname = newMemberLNameEntry.getText();
                 String id = newMemberIdEntry.getText();
+                String email = newMemberEmailEntry.getText();
                 String password = String.valueOf(newMemberPasswordEntry.getPassword());
+                String phoneNumber = newMemberPhoneNumberEntry.getText();
+                String address = newMemberAddressEntry.getText();
+                String county = newMemberCountyEntry.getText();
                 if (newMemberMaleEntry.isSelected()) Gender = "Male";
                 if (newMemberFemaleEntry.isSelected()) Gender = "Female";
-                NewMember.Register(id, fname, lname, Gender, password);
+                newMemberFNameEntry.setText("");
+                newMemberLNameEntry.setText("");
+                newMemberIdEntry.setText("");
+                newMemberPasswordEntry.setText("");
+                newMemberEmailEntry.setText("");
+                newMemberPhoneNumberEntry.setText("");
+                newMemberAddressEntry.setText("");
+                newMemberCountyEntry.setText("");
+                NewMember.Register(id, fname, lname, Gender, password, email, phoneNumber, address, county);
                 JOptionPane.showMessageDialog(frame, "saved the records successfully");
+                if (member_state) card1.show(projectPanel, "0");
+                else card.show(mainPanel, "0");
             }catch (Exception ex){
                 JOptionPane.showMessageDialog(frame, ex.getMessage());
             }
         });
+
+        // takes to the new book panel
         newBookButton.addActionListener(e ->{
             try {
                 String author = newBookAuthorEntry.getText();
+                newBookAuthorEntry.setText("");
                 String title = newBookTitleEntry.getText();
+                newBookTitleEntry.setText("");
                 int edition = Integer.parseInt(newBookEditionEntry.getText());
+                newBookEditionEntry.setText("");
                 int isdn = Integer.parseInt(newBookISDNEntry.getText());
+                newBookISDNEntry.setText("");
                 String id = newBookIdEntry.getText();
+                newBookIdEntry.setText("");
+                String subject = newBookSubjectEntry.getText();
+                newBookSubjectEntry.setText("");
                 int year = Integer.parseInt(newBookYearEntry.getValue().toString());
                 int quantity = Integer.parseInt(newBookQuantityEntry.getValue().toString());
-                NewBook.Register(id, author, title, edition, isdn, quantity, year);
+                NewBook.Register(id, author, title, edition, isdn, quantity, year, subject);
+
                 JOptionPane.showMessageDialog(frame, "successfully added");
             }catch (Exception ex){
                 JOptionPane.showMessageDialog(frame, ex.getMessage());
             }
         });
+
+        // takes the user to the borrow panel
         newBorrowsButton.addActionListener(e ->{
             try{
                 String bookid = newBorrowsBookIdEntry.getText();
-                String borrowerid = newBorrowsBorrowerIdEntry.getText();
+                String borrowerid;
+                if (isMember) borrowerid = member.getId();
+                else borrowerid = newBorrowsBorrowerIdEntry.getText();
                 int day = Integer.parseInt(newBorrowsDayEntry.getValue().toString());
                 int year = Integer.parseInt(newBorrowsYearEntry.getValue().toString());
                 int month = newBorrowsMonthEntry.getSelectedIndex() + 1;
@@ -481,10 +615,14 @@ public class Main {
                 JOptionPane.showMessageDialog(frame, ex.getMessage());
             }
         });
+
+        // takes the user to the reserve panel
         newReserveButton.addActionListener(e -> {
             try {
+                String reserverid;
                 int bookid = Integer.parseInt(newReserveBookIdEntry.getText());
-                int reserverid = Integer.parseInt(newReserveBorrowerIdEntry.getText());
+                if (isMember) reserverid = member.getId();
+                else reserverid = newReserveBorrowerIdEntry.getText();
                 int day = Integer.parseInt(newReserveDayEntry.getValue().toString());
                 int year = Integer.parseInt(newReserveYearEntry.getValue().toString());
                 int month = newReserveMonthEntry.getSelectedIndex() + 1;
@@ -494,10 +632,14 @@ public class Main {
                 JOptionPane.showMessageDialog(frame, ex.getMessage());
             }
         });
+
+        // takes the user to the return panel
         newReturnButton.addActionListener(e -> {
             try {
                 String bookid = newReturnBookIdEntry.getText();
-                String reserverid = newReturnBorrowerIdEntry.getText();
+                String reserverid;
+                if (isMember) reserverid = member.getId();
+                else reserverid= newReturnBorrowerIdEntry.getText();
                 int day = Integer.parseInt(newReturnDayEntry.getValue().toString());
                 int year = Integer.parseInt(newReturnYearEntry.getValue().toString());
                 int month = newReturnMonthEntry.getSelectedIndex() + 1;
@@ -509,18 +651,20 @@ public class Main {
             }
         });
 
-        logginPanel.setBackground(Color.pink);
-        logginPanel.setLayout(new BorderLayout());
-        logginPanel.add(new JLabel("Welcome to the Library System"), BorderLayout.NORTH);
+
+        // this is the login panel where the user enters the password and id inorder to access it
+        loginPanel.setBackground(Color.pink);
+        loginPanel.setLayout(new BorderLayout());
+        loginPanel.add(new JLabel("Welcome to the Library System"), BorderLayout.NORTH);
         JPanel logsPanel = new JPanel();
         logsPanel.setBackground(Color.pink);
-        logginPanel.add(logsPanel, BorderLayout.CENTER);
+        loginPanel.add(logsPanel, BorderLayout.CENTER);
 
         JTextField UserID = new JTextField(10);
         JPasswordField UserPassword = new JPasswordField(10);
         JButton userSubmit = new JButton("User");
         JButton adminSubmit = new JButton("Admin");
-        JButton newuser = new JButton("new user");
+        JButton newUser = new JButton("new user");
 
         logsPanel.setLayout(new GridBagLayout());
         GridBagConstraints bagConstraints = new GridBagConstraints();
@@ -539,26 +683,37 @@ public class Main {
         bagConstraints.gridy = 3; bagConstraints.gridx = 2;
         logsPanel.add(adminSubmit, bagConstraints);
         bagConstraints.gridy = 3; bagConstraints.gridx = 3;
-        logsPanel.add(newuser, bagConstraints);
+        logsPanel.add(newUser, bagConstraints);
 
         MainWorkPanel.setLayout(new BorderLayout());
         MainWorkPanel.add(menuPanel, BorderLayout.WEST);
         MainWorkPanel.add(mainPanel, BorderLayout.CENTER);
 
         projectPanel.setLayout(card1);
-        projectPanel.add(logginPanel, "0");
+        projectPanel.add(loginPanel, "0");
         projectPanel.add(MainWorkPanel, "1");
 
+
+        // button that contains the instructions of an admin to enter inorder to be admitted to the system
         adminSubmit.addActionListener(e -> {
             String user = "admin";
             String password = "admin";
-            String userinput = UserID.getText();
-            System.out.println(userinput);
-            String passwordinput = String.valueOf(UserPassword.getPassword());
-            if (userinput.equals(user) && passwordinput.equals(password)) {
+            String userInput = UserID.getText();
+            UserID.setText("");
+            isMember = false;
+            String passwordInput = String.valueOf(UserPassword.getPassword());
+            UserPassword.setText("");
+            if (userInput.equals(user) && passwordInput.equals(password)) {
                 JOptionPane.showMessageDialog(frame, "welcome");
                 card1.show(projectPanel, "1");
+                card.show(mainPanel, "0");
+                homePageButton.setVisible(true);
+                SearchButton.setVisible(true);
                 libMemberButton.setVisible(true);
+                libBooksButton.setVisible(true);
+                libReturnButton.setVisible(true);
+                libReserveButton.setVisible(true);
+                libBorrowButton.setVisible(true);
                 MemberBorrowReportButton.setVisible(true);
                 BookReportButton.setVisible(true);
                 BorrowReportButton.setVisible(true);
@@ -566,39 +721,66 @@ public class Main {
             }else JOptionPane.showMessageDialog(frame, "entered a wrong password or id");
 
         });
+
+        // button that contains the instructions of a user to enter inorder to be admitted to the system
         userSubmit.addActionListener(e -> {
-            String userinput = UserID.getText();
-            String password = NewMember.getPassword(userinput);
-            System.out.println(userinput);
-            String passwordinput = String.valueOf(UserPassword.getPassword());
-            if (passwordinput.equals(password)) {
+            String userInput = UserID.getText();
+            String password = NewMember.getPassword(userInput);
+            UserID.setText("");
+            String passwordInput = String.valueOf(UserPassword.getPassword());
+            UserPassword.setText("");
+            if (passwordInput.equals(password)) {
                 JOptionPane.showMessageDialog(frame, "welcome");
                 card1.show(projectPanel, "1");
+                card.show(mainPanel, "0");
+                homePageButton.setVisible(true);
+                SearchButton.setVisible(true);
                 libMemberButton.setVisible(false);
+                libBooksButton.setVisible(false);
+                libReturnButton.setVisible(true);
+                libReserveButton.setVisible(true);
+                libBorrowButton.setVisible(true);
                 MemberBorrowReportButton.setVisible(false);
                 BookReportButton.setVisible(false);
                 BorrowReportButton.setVisible(false);
                 ReserveReportButton.setVisible(false);
+                mySearch.setMember(userInput);
             }else JOptionPane.showMessageDialog(frame, "entered a wrong password or id");
         });
 
-        loginpageButton.addActionListener(e -> card1.show(projectPanel, "0"));
 
-        newuser.addActionListener(e -> {
+        // returns the user to the login page
+        loginPageButton.addActionListener(e -> card1.show(projectPanel, "0"));
+
+
+        // takes user to the new member panel for a user to enter their details
+        newUser.addActionListener(e -> {
             card1.show(projectPanel, "1");
             card.show(mainPanel, "1");
+            member_state = true;
+            newMemberPanel.setBackground(Color.pink);
+            homePageButton.setVisible(false);
+            SearchButton.setVisible(false);
+            libMemberButton.setVisible(false);
+            libBooksButton.setVisible(false);
+            libReturnButton.setVisible(false);
+            libReserveButton.setVisible(false);
+            libBorrowButton.setVisible(false);
             MemberBorrowReportButton.setVisible(false);
             BookReportButton.setVisible(false);
             BorrowReportButton.setVisible(false);
             ReserveReportButton.setVisible(false);
         });
 
+
+        // add the panel to the frame
         frame.add(projectPanel);
         frame.setVisible(true);
-        frame.setSize(800,500);
+        frame.setSize(1000,500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
     public static void main(String[] args){
+        // this method instantiates the class
         new Main();
     }
 }
